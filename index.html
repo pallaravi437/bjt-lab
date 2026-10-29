@@ -360,7 +360,7 @@
             <span>STORY MODE LIVE CIRCUIT SPOTLIGHT</span>
             <span id="story-live-telemetry" class="text-cyan-400 font-bold">V_BE = 0.00 V | I_B = 0 µA | I_C = 0.00 mA</span>
           </div>
-          <canvas id="story-spotlight-canvas" class="w-full h-64 rounded-lg" aria-label="Interactive Story Mode circuit spotlight"></canvas>
+          <canvas id="story-spotlight-canvas" width="600" height="256" class="w-full h-64 rounded-lg" aria-label="Interactive Story Mode circuit spotlight"></canvas>
         </div>
 
         <div class="lg:col-span-5 rounded-xl bg-slate-900/95 border-2 border-amber-500/50 p-5 space-y-4 shadow-xl">
@@ -472,7 +472,7 @@
               <span class="text-slate-400">Depletion Zones &amp; Carrier Streams</span>
             </div>
             <div class="relative w-full h-72 mt-2">
-              <canvas id="dual-semi-canvas" class="w-full h-full rounded-lg" aria-label="Silicon Physics View"></canvas>
+              <canvas id="dual-semi-canvas" width="520" height="288" class="w-full h-full rounded-lg" aria-label="Silicon Physics View"></canvas>
             </div>
           </div>
 
@@ -482,7 +482,7 @@
               <span class="text-slate-400">Tiny Lever Effort → Massive Pipe Flow</span>
             </div>
             <div class="relative w-full h-72 mt-2">
-              <canvas id="dual-water-canvas" class="w-full h-full rounded-lg" aria-label="Hydraulic Water Pipe Model"></canvas>
+              <canvas id="dual-water-canvas" width="520" height="288" class="w-full h-full rounded-lg" aria-label="Hydraulic Water Pipe Model"></canvas>
             </div>
           </div>
         </div>
@@ -852,7 +852,7 @@
               <span>Emitter [E] → Base [B] → Collector [C]</span>
             </div>
             <div class="relative w-full h-72 sm:h-80 mt-2">
-              <canvas id="bjt-physics-canvas" class="w-full h-full rounded-lg" aria-label="Semiconductor Cross-Section"></canvas>
+              <canvas id="bjt-physics-canvas" width="600" height="320" class="w-full h-full rounded-lg" aria-label="Semiconductor Cross-Section"></canvas>
             </div>
           </div>
 
@@ -862,7 +862,7 @@
               <span>──▶ Conventional Current (I)</span>
             </div>
             <div class="relative w-full h-72 sm:h-80 mt-2">
-              <canvas id="bjt-circuit-canvas" class="w-full h-full rounded-lg" aria-label="Circuit Diagram"></canvas>
+              <canvas id="bjt-circuit-canvas" width="450" height="320" class="w-full h-full rounded-lg" aria-label="Circuit Diagram"></canvas>
             </div>
           </div>
         </div>
@@ -1112,7 +1112,7 @@
                     <span id="sim-svg-status" class="text-emerald-400">● ACTIVE FLOW</span>
                   </div>
                 </div>
-                <canvas id="sim-smoke-canvas" class="pointer-events-none absolute inset-0 w-full h-full z-10" aria-hidden="true"></canvas>
+                <canvas id="sim-smoke-canvas" width="400" height="300" class="pointer-events-none absolute inset-0 w-full h-full z-10" aria-hidden="true"></canvas>
                 <svg id="sim-circuit-svg" class="w-full h-64" viewBox="0 0 360 250" role="img">
                   <line x1="230" y1="22" x2="230" y2="45" stroke="#3b82f6" stroke-width="3"/>
                   <circle cx="230" cy="18" r="5" fill="#3b82f6"/>
@@ -1651,7 +1651,7 @@
                 <span id="audio-thd-readout" class="text-cyan-300 font-bold">0% Distortion</span>
               </div>
               <div class="relative w-full h-56 mt-2">
-                <canvas id="audio-scope-canvas" class="w-full h-full rounded-lg" aria-label="Audio Scope"></canvas>
+                <canvas id="audio-scope-canvas" width="600" height="224" class="w-full h-full rounded-lg" aria-label="Audio Scope"></canvas>
               </div>
             </div>
 
@@ -2393,7 +2393,8 @@
 
       let lastTs = performance.now();
       function tickAnimation(now) {
-        const dt = Math.min(0.1, (now - lastTs) / 1000);
+        now = now || performance.now();
+        const dt = Math.min(0.1, (now - (lastTs || now)) / 1000);
         lastTs = now;
         if (animState.playing && !animState.stepMode) {
           animState.wirePhase += dt * animState.speed * (0.4 + (animState.baseDrive / 100) * 0.9);
@@ -2404,8 +2405,8 @@
             updateStageUI();
           }
         }
-        renderPhysicsCanvas();
-        renderCircuitCanvas();
+        try { renderPhysicsCanvas(); } catch(e) { console.error('Error rendering physics canvas:', e); }
+        try { renderCircuitCanvas(); } catch(e) { console.error('Error rendering circuit canvas:', e); }
         requestAnimationFrame(tickAnimation);
       }
       updateStageUI();
@@ -3545,10 +3546,11 @@
 
       // Master 60 FPS loop
       function tickExplorerExtras(now) {
-        renderStoryCanvas(now);
-        renderDualCanvases(now);
-        renderAudioScope(now);
-        renderSmokeCanvas();
+        now = now || performance.now();
+        try { renderStoryCanvas(now); } catch(e) { console.error('Error rendering story canvas:', e); }
+        try { renderDualCanvases(now); } catch(e) { console.error('Error rendering dual canvases:', e); }
+        try { renderAudioScope(now); } catch(e) { console.error('Error rendering audio scope:', e); }
+        try { renderSmokeCanvas(); } catch(e) { console.error('Error rendering smoke canvas:', e); }
         requestAnimationFrame(tickExplorerExtras);
       }
       applyStoryStep(1);
